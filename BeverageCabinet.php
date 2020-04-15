@@ -35,7 +35,7 @@ class BeverageCabinet
         $this->maxBeverageCountCapacity = $this::SHELF_COUNT * $this::SHELF_CAPACITY;
     }
 
-    public function getBeverage(int $count)
+    public function getBeverage(int $count): IBeverage
     {
         if ($this->doorStatus !== $this::DOOR_STATUS['CLOSE']) {
             new \Exception('Please open the door!');
@@ -49,10 +49,10 @@ class BeverageCabinet
             new \Exception(sprintf('Cabinet process capacity is %d', $this::ACCEPTED_PROCESS));
         }
 
-        array_pop($this->beverage);
+        $getBeverage = array_pop($this->beverage);
         $this->updateCapacityStatus();
 
-        return true;
+        return $getBeverage;
     }
 
     public function addBeverage(IBeverage $beverage, int $count)
