@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * V1
  * Design a beverage cabinet that can hold a single type of beverage (For example: 33cl can of cola).
  * The cabinet consists of 3 shelves and each shelf can hold 20 cans of beverage.
  *
@@ -13,11 +14,18 @@
  * The closet should be able to control the free space and no more boxes can be added when it is full.
  */
 
+/**
+ * V2
+ * Change the design so that the cabinet will receive two types of drinks, 33cl and 50cl.
+ * Each shelf can hold 20 pieces 33cl or 10 pieces 50cl.
+ * It can also take 33cl and 50cl mixed provided that it does not exceed the shelf capacity.
+ * (For example, 5 units of 50cl and 10 units of 33cl fit together in a single rack.)
+ */
 
 class BeverageCabinet
 {
     private const ACCEPTED_PROCESS = 1;
-    private const ACCEPTED_BEVERAGE = ['NAME' => 'Coke', 'TYPE' => '33cl'];
+    private const ACCEPTED_BEVERAGE_TYPE = ['33cl', '50cl'];
     private const CAPACITY_STATUS = ['EMPTY', 'FULL', 'PARTIALLY'];
     private const DOOR_STATUS = ['CLOSE', 'OPEN'];
 
@@ -30,23 +38,23 @@ class BeverageCabinet
 
     public function __construct()
     {
-        $this->doorStatus = $this::DOOR_STATUS['CLOSE'];
-        $this->capacityStatus = $this::CAPACITY_STATUS['EMPTY'];
-        $this->maxBeverageCountCapacity = $this::SHELF_COUNT * $this::SHELF_CAPACITY;
+        $this->doorStatus = self::DOOR_STATUS['CLOSE'];
+        $this->capacityStatus = self::CAPACITY_STATUS['EMPTY'];
+        $this->maxBeverageCountCapacity = self::SHELF_COUNT * self::SHELF_CAPACITY;
     }
 
-    public function getBeverage(int $count): IBeverage
+    public function getBeverage(int $count)
     {
-        if ($this->doorStatus !== $this::DOOR_STATUS['CLOSE']) {
-            new \Exception('Please open the door!');
+        if ($this->doorStatus !== self::DOOR_STATUS['CLOSE']) {
+            return 'Please open the door!';
         }
 
-        if ($this->getCapacityStatus() === $this::CAPACITY_STATUS['EMPTY']) {
-            new \Exception('Cabinet is empty!');
+        if ($this->getCapacityStatus() === self::CAPACITY_STATUS['EMPTY']) {
+            return 'Cabinet is empty!';
         }
 
-        if ($count !== $this::ACCEPTED_PROCESS) {
-            new \Exception(sprintf('Cabinet process capacity is %d', $this::ACCEPTED_PROCESS));
+        if ($count !== self::ACCEPTED_PROCESS) {
+            return sprintf('Cabinet process capacity is %d', self::ACCEPTED_PROCESS);
         }
 
         $getBeverage = array_pop($this->beverage);
@@ -57,24 +65,20 @@ class BeverageCabinet
 
     public function addBeverage(IBeverage $beverage, int $count)
     {
-        if ($this->doorStatus !== $this::DOOR_STATUS['CLOSE']) {
-            new \Exception('Please open the door!');
+        if ($this->doorStatus !== self::DOOR_STATUS['CLOSE']) {
+            return 'Please open the door!';
         }
 
-        if ($beverage->getType() !== $this::ACCEPTED_BEVERAGE['TYPE']) {
-            new \Exception('Invalid beverage type!');
+        if (!in_array($beverage->getType(), self::ACCEPTED_BEVERAGE_TYPE)) {
+            return 'Invalid beverage type!';
         }
 
-        if ($beverage->getName() !== $this::ACCEPTED_BEVERAGE['NAME']) {
-            new \Exception('Invalid beverage name!');
+        if ($this->getCapacityStatus() === self::CAPACITY_STATUS['FULL']) {
+            return 'Cabinet capacity is full!';
         }
 
-        if ($this->getCapacityStatus() === $this::CAPACITY_STATUS['FULL']) {
-            new \Exception('Cabinet capacity is full!');
-        }
-
-        if ($count !== $this::ACCEPTED_PROCESS) {
-            new \Exception(sprintf('Cabinet process capacity is %d', $this::ACCEPTED_PROCESS));
+        if ($count !== self::ACCEPTED_PROCESS) {
+            return sprintf('Cabinet process capacity is %d', self::ACCEPTED_PROCESS);
         }
 
         array_push($this->beverage, $beverage);
@@ -88,15 +92,15 @@ class BeverageCabinet
         $this->capacityStatus = count($this->beverage);
 
         if (0 === $this->capacityStatus) {
-            $this->capacityStatus = $this::CAPACITY_STATUS['EMPTY'];
+            $this->capacityStatus = self::CAPACITY_STATUS['EMPTY'];
         }
 
         if ($this->capacityStatus > 1 && $this->capacityStatus < $this->maxBeverageCountCapacity) {
-            $this->capacityStatus = $this::CAPACITY_STATUS['PARTIALLY'];
+            $this->capacityStatus = self::CAPACITY_STATUS['PARTIALLY'];
         }
 
         if ($this->capacityStatus === $this->maxBeverageCountCapacity) {
-            $this->capacityStatus = $this::CAPACITY_STATUS['FULL'];
+            $this->capacityStatus = self::CAPACITY_STATUS['FULL'];
         }
     }
 
@@ -107,12 +111,12 @@ class BeverageCabinet
 
     public function openDoor(): void
     {
-        $this->doorStatus = $this::DOOR_STATUS['OPEN'];
+        $this->doorStatus = self::DOOR_STATUS['OPEN'];
     }
 
     public function closeDoor(): void
     {
-        $this->doorStatus = $this::DOOR_STATUS['CLOSE'];
+        $this->doorStatus = self::DOOR_STATUS['CLOSE'];
     }
 
     public function checkDoor()
@@ -130,10 +134,10 @@ interface IBeverage
     public function getType(): string;
 }
 
-class Coke implements IBeverage
-{
-    private $name;
-    private $type;
+class Beverage implements IBeverage {
+
+    protected $name;
+    protected $type;
 
     public function __construct($name, $type)
     {
@@ -150,4 +154,14 @@ class Coke implements IBeverage
     {
         return $this->type;
     }
+
+    public function __toString() {
+        return $this->type . ' ' . $this->name;
+    }
 }
+
+$coke33cl = new Beverage('Coke', '33cl');
+$coke50cl = new Beverage('Coke', '50cl');
+
+
+
